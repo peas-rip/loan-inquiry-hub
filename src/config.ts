@@ -1,2 +1,2 @@
 // src/config.ts
-export const BACKEND_URL = "https://finance-backend-jet.vercel.app";
+export const BACKEND_URL = "https://loan-inquiry-hub.onrender.com";
