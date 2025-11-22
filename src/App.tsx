@@ -9,7 +9,7 @@ import LoanForm from "./pages/LoanForm";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminSettings from "./pages/AdminSettings";
-import ThankYou from "./pages/ThankYou";
+import ThankYou from './pages/ThankYou';
 
 
 const queryClient = new QueryClient();
