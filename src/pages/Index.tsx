@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { FileText, Shield } from "lucide-react";
+import { FileText } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -12,12 +12,16 @@ export default function Index() {
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4">Loan Application Portal</h1>
           <p className="text-xl text-muted-foreground">
-            Apply for loans or manage applications as an administrator
+            Apply for loans quickly & easily
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate("/loan-form")}>
+        <div className="grid md:grid-cols-1 gap-6">
+          {/* ONLY USER LOAN FORM CARD */}
+          <Card 
+            className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer" 
+            onClick={() => navigate("/loan-form")}
+          >
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
                 <div className="bg-primary/10 p-4 rounded-full">
