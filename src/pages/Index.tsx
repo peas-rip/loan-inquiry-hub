@@ -36,26 +36,6 @@ export default function Index() {
               </Button>
             </CardContent>
           </Card>
-
-          <Card className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate("/admin/login")}>
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="bg-primary/10 p-4 rounded-full">
-                  <Shield className="h-12 w-12 text-primary" />
-                </div>
-              </div>
-              <CardTitle className="text-2xl">Admin Portal</CardTitle>
-              <CardDescription>Manage loan applications</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground mb-6">
-                Access the admin dashboard to view, manage, and download loan applications.
-              </p>
-              <Button size="lg" variant="outline" className="w-full">
-                Admin Login
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
