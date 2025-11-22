@@ -7,10 +7,10 @@ const connectDB = require("../config/db");
 
 const app = express();
 
-// Connect DB once (Vercel reuses connections)
-connectDB(process.env.MONGO_URI);
+// Connect DB only once
+connectDB();
 
-// Security headers
+// Security
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
@@ -32,19 +32,18 @@ app.use(
 
 app.use(express.json({ limit: "10kb" }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 100,
-});
-app.use(limiter);
+// Rate limit
+app.use(
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+  })
+);
 
 // Routes
-app.use("/api/applications", require("../routes/Application"));
 app.use("/api/admin", require("../routes/Admin"));
+app.use("/api/applications", require("../routes/Application"));
 
 app.get("/", (req, res) => res.send("Loan backend running"));
 
-// ❗ The MOST important change:
-// 👉 Export the Express app instead of listening to a port.
 module.exports = app;
