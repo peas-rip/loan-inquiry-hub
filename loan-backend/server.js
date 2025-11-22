@@ -10,7 +10,10 @@ const app = express();
 connectDB(process.env.MONGO_URI);
 
 // Basic security
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(cors({
   origin: ["http://localhost:5173","https://srisaifinance.netlify.app"],
   methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -35,3 +38,5 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+
