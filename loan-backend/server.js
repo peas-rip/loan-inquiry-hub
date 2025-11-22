@@ -11,7 +11,11 @@ connectDB(process.env.MONGO_URI);
 
 // Basic security
 app.use(helmet());
-app.use(cors({ origin: true })); // adjust origin in production
+app.use(cors({
+  origin: ["http://localhost:5173","https://srisaifinance.netlify.app"],
+  methods: ["GET", "POST", "PATCH", "DELETE"],
+  credentials: true
+}));
 app.use(express.json({ limit: "10kb" }));
 
 // Rate limiter - simple example
