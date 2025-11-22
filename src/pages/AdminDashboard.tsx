@@ -27,17 +27,30 @@ export default function AdminDashboard() {
 
   // Add this function inside AdminDashboard component
 const handleDelete = async (application) => {
-
   if (!confirm(`Are you sure you want to delete application ${application.name}?`)) return;
 
   try {
     const token = sessionStorage.getItem("admin_token");
-    const res = await fetch(`${BACKEND_URL}api/applications/${application.name}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
 
-    const data = await res.json();
+    const res = await fetch(
+      `${BACKEND_URL}/api/applications/${application._id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const text = await res.text(); // debug if needed
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error("Non-JSON response:", text);
+      throw new Error("Server returned HTML instead of JSON");
+    }
 
     if (!res.ok) {
       toast({
@@ -53,10 +66,8 @@ const handleDelete = async (application) => {
       description: `Application ${application._id} has been deleted`,
     });
 
-    // Remove from local state
-    setApplications(prev => prev.filter(app => app._id !== application._id));
+    setApplications((prev) => prev.filter((app) => app._id !== application._id));
     setIsDialogOpen(false);
-
   } catch (err) {
     console.error(err);
     toast({
@@ -69,7 +80,7 @@ const handleDelete = async (application) => {
 
   const fetchApplications = async (token) => {
     try {
-      const res = await fetch("{API_URL}api/applications", {
+      const res = await fetch(`${BACKEND_URL}/api/applications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -111,7 +122,7 @@ const handleDelete = async (application) => {
       const token = sessionStorage.getItem("admin_token");
 
       const res = await fetch(
-        `http://localhost:4000/api/applications/${application._id}/pdf`,
+        `${BACKEND_URL}/api/applications/${application._id}/pdf`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
