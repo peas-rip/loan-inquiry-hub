@@ -6,13 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { storage } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -24,29 +23,53 @@ export default function AdminLogin() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    
-    if (storage.verifyAdmin(values.email, values.password)) {
-      sessionStorage.setItem("admin_authenticated", "true");
+
+    try {
+      const res = await fetch("http://localhost:4000/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Login Failed",
+          description: data.message || "Invalid credentials",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Save JWT + username
+      sessionStorage.setItem("admin_token", data.token);
+      sessionStorage.setItem("admin_authenticated","true");
+      sessionStorage.setItem("admin_username", data.username);
+
       toast({
         title: "Login Successful",
         description: "Welcome to the admin dashboard",
       });
+
       navigate("/admin/dashboard");
-    } else {
+
+    } catch (err) {
       toast({
-        title: "Login Failed",
-        description: "Invalid email or password",
+        title: "Server Error",
+        description: "Unable to reach backend server",
         variant: "destructive",
       });
     }
-    
+
     setIsLoading(false);
   };
 
@@ -62,23 +85,27 @@ export default function AdminLogin() {
           <CardTitle className="text-3xl">Admin Login</CardTitle>
           <CardDescription>Enter your credentials to access the dashboard</CardDescription>
         </CardHeader>
+
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              
+              {/* Username */}
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Admin Username</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="admin@loanapp.com" {...field} />
+                      <Input placeholder="admin" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {/* Password */}
               <FormField
                 control={form.control}
                 name="password"
@@ -98,12 +125,6 @@ export default function AdminLogin() {
               </Button>
             </form>
           </Form>
-
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            <p>Default credentials:</p>
-            <p>Email: admin@loanapp.com</p>
-            <p>Password: admin123</p>
-          </div>
         </CardContent>
       </Card>
     </div>

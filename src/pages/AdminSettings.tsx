@@ -1,86 +1,101 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { storage } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Settings } from "lucide-react";
 
+// Zod schema for password update
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
   currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
+  newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your new password")
 }).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  message: "Passwords do not match",
+  path: ["confirmPassword"]
 });
 
-export default function AdminSettings() {
+type FormValues = z.infer<typeof formSchema>;
+
+export default function AdminSettings(): JSX.Element {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentCredentials, setCurrentCredentials] = useState({ email: "", password: "" });
 
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: ""
+    }
+  });
+
+  // Check authentication
   useEffect(() => {
-    // Check authentication
     const isAuthenticated = sessionStorage.getItem("admin_authenticated");
     if (!isAuthenticated) {
       navigate("/admin/login");
-      return;
     }
-
-    // Load current credentials
-    const credentials = storage.getAdminCredentials();
-    setCurrentCredentials(credentials);
   }, [navigate]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: currentCredentials.email,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  });
-
-  // Update form when credentials are loaded
-  useEffect(() => {
-    form.setValue("email", currentCredentials.email);
-  }, [currentCredentials, form]);
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Verify current password
-    if (values.currentPassword !== currentCredentials.password) {
-      toast({
-        title: "Error",
-        description: "Current password is incorrect",
-        variant: "destructive",
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    try {
+      const token = sessionStorage.getItem("admin_token");
+      const res = await fetch("http://localhost:4000/api/admin/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          username:sessionStorage.getItem("admin_username"),
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword
+        })
       });
-      return;
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Update Failed",
+          description: data.message || "Unable to update password",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Password Updated",
+        description: "Please login again with your new password"
+      });
+
+      // Clear session
+      sessionStorage.removeItem("admin_token");
+      sessionStorage.removeItem("admin_authenticated");
+      setTimeout(() => navigate("/admin/login"), 1200);
+
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Server Error",
+        description: "Could not reach backend",
+        variant: "destructive"
+      });
     }
-
-    // Update credentials
-    storage.updateAdminCredentials({
-      email: values.email,
-      password: values.newPassword,
-    });
-
-    toast({
-      title: "Settings Updated",
-      description: "Your admin credentials have been successfully updated",
-    });
-
-    // Clear session and redirect to login
-    sessionStorage.removeItem("admin_authenticated");
-    setTimeout(() => {
-      navigate("/admin/login");
-    }, 1500);
   };
 
   return (
@@ -91,8 +106,7 @@ export default function AdminSettings() {
           onClick={() => navigate("/admin/dashboard")}
           className="mb-6"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
         </Button>
 
         <Card className="shadow-lg">
@@ -103,25 +117,12 @@ export default function AdminSettings() {
               </div>
             </div>
             <CardTitle className="text-3xl">Admin Settings</CardTitle>
-            <CardDescription>Update your email and password</CardDescription>
+            <CardDescription>Update your password</CardDescription>
           </CardHeader>
+
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="admin@loanapp.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="currentPassword"
@@ -135,7 +136,6 @@ export default function AdminSettings() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="newPassword"
@@ -149,7 +149,6 @@ export default function AdminSettings() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="confirmPassword"
@@ -163,10 +162,7 @@ export default function AdminSettings() {
                     </FormItem>
                   )}
                 />
-
-                <Button type="submit" className="w-full">
-                  Update Settings
-                </Button>
+                <Button type="submit" className="w-full">Update Password</Button>
               </form>
             </Form>
           </CardContent>

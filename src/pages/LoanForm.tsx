@@ -7,10 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { storage } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { FileText } from "lucide-react";
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -25,7 +26,7 @@ export default function LoanForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -37,21 +38,41 @@ export default function LoanForm() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const applicationData = {
-      name: values.name,
-      phoneNumber: values.phoneNumber,
-      address: values.address,
-      dateOfBirth: values.dateOfBirth,
-      gender: values.gender,
-      loanCategory: values.loanCategory,
-    };
-    storage.saveApplication(applicationData);
-    toast({
-      title: "Application Submitted",
-      description: "Your loan application has been successfully submitted.",
-    });
-    form.reset();
+  const onSubmit = async (values) => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/applications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Submission Failed",
+          description: data.message || "Unable to submit loan application",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Application Submitted",
+        description: "Your loan application has been successfully submitted.",
+      });
+
+      form.reset();
+      navigate("/thank-you");
+
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Server Error",
+        description: "Something went wrong. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -73,9 +94,12 @@ export default function LoanForm() {
             <CardTitle className="text-3xl">Loan Application Form</CardTitle>
             <CardDescription>Fill in your details to apply for a loan</CardDescription>
           </CardHeader>
+
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+                {/* Name */}
                 <FormField
                   control={form.control}
                   name="name"
@@ -90,6 +114,7 @@ export default function LoanForm() {
                   )}
                 />
 
+                {/* Phone */}
                 <FormField
                   control={form.control}
                   name="phoneNumber"
@@ -104,6 +129,7 @@ export default function LoanForm() {
                   )}
                 />
 
+                {/* Address */}
                 <FormField
                   control={form.control}
                   name="address"
@@ -118,6 +144,7 @@ export default function LoanForm() {
                   )}
                 />
 
+                {/* DOB */}
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
@@ -132,6 +159,7 @@ export default function LoanForm() {
                   )}
                 />
 
+                {/* Gender */}
                 <FormField
                   control={form.control}
                   name="gender"
@@ -155,6 +183,7 @@ export default function LoanForm() {
                   )}
                 />
 
+                {/* Loan Category */}
                 <FormField
                   control={form.control}
                   name="loanCategory"
@@ -171,7 +200,8 @@ export default function LoanForm() {
                           <SelectItem value="personal">Personal Loan</SelectItem>
                           <SelectItem value="housing">Housing Loan</SelectItem>
                           <SelectItem value="business">Business Loan</SelectItem>
-                          <SelectItem value="vehicle">Vehicle Loan</SelectItem>
+                          <SelectItem value="vehicle">Vehicle Loan Old</SelectItem>
+                          <SelectItem value="vehicle-new">Vehicle Loan New</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
