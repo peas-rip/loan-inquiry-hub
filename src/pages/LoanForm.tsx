@@ -10,8 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { FileText } from "lucide-react";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+import { BACKEND_URL } from "@/config";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -40,7 +39,7 @@ export default function LoanForm() {
 
   const onSubmit = async (values) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/applications`, {
+      const res = await fetch(`${BACKEND_URL}/api/applications`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
-
+import { BACKEND_URL } from "@/config";
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
@@ -32,7 +32,7 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:4000/api/admin/login", {
+      const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Users, FileText, Download, LogOut, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
+import { BACKEND_URL } from "@/config";
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,7 +32,7 @@ const handleDelete = async (application) => {
 
   try {
     const token = sessionStorage.getItem("admin_token");
-    const res = await fetch(`http://localhost:4000/api/applications/${application.name}`, {
+    const res = await fetch(`${BACKEND_URL}api/applications/${application.name}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -69,7 +69,7 @@ const handleDelete = async (application) => {
 
   const fetchApplications = async (token) => {
     try {
-      const res = await fetch("http://localhost:4000/api/applications", {
+      const res = await fetch("{API_URL}api/applications", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

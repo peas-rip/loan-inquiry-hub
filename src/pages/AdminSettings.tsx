@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
+import { BACKEND_URL } from "@/config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,7 +54,7 @@ export default function AdminSettings(): JSX.Element {
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     try {
       const token = sessionStorage.getItem("admin_token");
-      const res = await fetch("http://localhost:4000/api/admin/update", {
+      const res = await fetch(`${BACKEND_URL}/api/admin/update`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
