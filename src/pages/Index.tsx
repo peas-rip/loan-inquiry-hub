@@ -2,22 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { FileText } from "lucide-react";
+import saiLogo from "@/assets/sai-logo.png";
 
 export default function Index() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center px-4">
-      <div className="container max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Loan Application Portal</h1>
-          <p className="text-xl text-muted-foreground">
-            Apply for loans quickly & easily
-          </p>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full">
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <img src={saiLogo} alt="Sai Financial Services" className="h-16 w-16 object-contain" />
+          <h1 className="text-3xl font-bold text-foreground">Sai Financial Services</h1>
         </div>
-
+        
         <div className="grid md:grid-cols-1 gap-6">
-          {/* ONLY USER LOAN FORM CARD */}
           <Card 
             className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer" 
             onClick={() => navigate("/loan-form")}
