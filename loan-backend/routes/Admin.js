@@ -56,4 +56,56 @@ router.patch("/update",async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const { search, gender, loanCategory, fromDate, toDate } = req.query;
+
+    let query = {};
+
+    // 🔍 Global Search (name, phone, address, referral)
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { phoneNumber: { $regex: search, $options: "i" } },
+        { primaryContactNumber: { $regex: search, $options: "i" } },
+        { address: { $regex: search, $options: "i" } },
+        { referralName: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // ⚧ Filter by Gender
+    if (gender && gender !== "all") {
+      query.gender = gender;
+    }
+
+    // 🏦 Filter by Loan Category
+    if (loanCategory && loanCategory !== "all") {
+      query.loanCategory = loanCategory;
+    }
+
+    // 📅 Filter by Date Range
+    if (fromDate || toDate) {
+      query.submittedAt = {};
+
+      if (fromDate) {
+        query.submittedAt.$gte = new Date(fromDate);
+      }
+      if (toDate) {
+        query.submittedAt.$lte = new Date(toDate);
+      }
+    }
+
+    const applications = await Application.find(query).sort({ submittedAt: -1 });
+
+    res.json({
+      count: applications.length,
+      applications,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
