@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
 const ApplicationSchema = new mongoose.Schema({
+  id: { type: String, default: uuidv4, unique: true }, // <-- added
   name: String,
   phoneNumber: String,
   primaryContactNumber: String,
