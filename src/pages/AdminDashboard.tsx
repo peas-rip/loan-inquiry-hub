@@ -275,65 +275,84 @@ const handleDelete = async (application) => {
 
       {/* APPLICATION DETAILS MODAL */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Application Details</DialogTitle>
-            <DialogDescription>
-              Complete information for application {selectedApplication?._id}
-            </DialogDescription>
-          </DialogHeader>
+  <DialogContent className="max-w-2xl">
+    <DialogHeader>
+      <DialogTitle>Application Details</DialogTitle>
+      <DialogDescription>
+        Complete information for application {selectedApplication?._id}
+      </DialogDescription>
+    </DialogHeader>
 
-          {selectedApplication && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-                  <p>{selectedApplication.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Phone</p>
-                  <p>{selectedApplication.phoneNumber}</p>
-                </div>
+    {selectedApplication && (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Full Name</p>
+            <p>{selectedApplication.name}</p>
+          </div>
 
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">DOB</p>
-                  <p>{new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>
-                </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Phone Number</p>
+            <p>{selectedApplication.phoneNumber}</p>
+          </div>
 
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Gender</p>
-                  <p>{selectedApplication.gender}</p>
-                </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Primary Contact Number</p>
+            <p>{selectedApplication.primaryContactNumber}</p>
+          </div>
 
-                <div className="col-span-2">
-                  <p className="text-sm font-medium text-muted-foreground">Address</p>
-                  <p>{selectedApplication.address}</p>
-                </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Gender</p>
+            <p className="capitalize">{selectedApplication.gender}</p>
+          </div>
 
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Loan Type</p>
-                  <p>{formatLoanCategory(selectedApplication.loanCategory)}</p>
-                </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
+            <p>{new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>
+          </div>
 
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Submitted At</p>
-                  <p>{new Date(selectedApplication.submittedAt).toLocaleString()}</p>
-                </div>
-              </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Loan Category</p>
+            <p className="capitalize">
+              {selectedApplication.loanCategory === "others"
+                ? selectedApplication.loanCategoryOther
+                : selectedApplication.loanCategory}
+            </p>
+          </div>
 
-              <div className="flex justify-end pt-4">
-                <Button onClick={() => handleDownloadPDF(selectedApplication)}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download PDF
-                </Button>
-              </div>
-              <Button variant="destructive" onClick={() => handleDelete(selectedApplication)}>
-    Delete
-  </Button>
+          {selectedApplication.loanCategory === "others" && (
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Specified Category</p>
+              <p>{selectedApplication.loanCategoryOther}</p>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Referral Name</p>
+            <p>{selectedApplication.referralName || "—"}</p>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Referral Phone</p>
+            <p>{selectedApplication.referralPhone || "—"}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Address</p>
+          <p>{selectedApplication.address}</p>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Submitted At</p>
+          <p>{new Date(selectedApplication.submittedAt).toLocaleString()}</p>
+        </div>
+      </div>
+    )}
+  </DialogContent>
+</Dialog>
+
     </div>
   );
 }
