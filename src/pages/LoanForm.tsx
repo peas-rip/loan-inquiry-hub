@@ -219,7 +219,6 @@
 //     </div>
 //   );
 // }
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -238,12 +237,12 @@ import { useState } from "react";
 const formSchema = z.object({
   name: z.string().min(2).max(100),
   phoneNumber: z.string().min(10).max(15),
-  primaryContact: z.string().min(10, "Primary contact must be at least 10 digits"),
+  primaryContactNumber: z.string().min(10, "Primary contact must be at least 10 digits"),
   address: z.string().min(10).max(500),
   dateOfBirth: z.string().min(1),
   gender: z.string().min(1),
   loanCategory: z.string().min(1),
-  otherLoanCategory: z.string().optional(),
+  loanCategoryOther: z.string().optional(),
   referralName: z.string().optional(),
   referralPhone: z.string().optional(),
 });
@@ -258,21 +257,21 @@ export default function LoanForm() {
     defaultValues: {
       name: "",
       phoneNumber: "",
-      primaryContact: "",
+      primaryContactNumber: "",
       address: "",
       dateOfBirth: "",
       gender: "",
       loanCategory: "",
-      otherLoanCategory: "",
+      loanCategoryOther: "",
       referralName: "",
       referralPhone: "",
     },
   });
 
   const onSubmit = async (values) => {
-    // If "other" category selected, replace loanCategory with manual text
-    if (values.loanCategory === "other" && values.otherLoanCategory) {
-      values.loanCategory = values.otherLoanCategory;
+    // If "other" category is chosen, override loanCategory
+    if (values.loanCategory === "other" && values.loanCategoryOther) {
+      values.loanCategory = values.loanCategoryOther;
     }
 
     try {
@@ -305,7 +304,7 @@ export default function LoanForm() {
       console.error(error);
       toast({
         title: "Server Error",
-        description: "Something went wrong.",
+        description: "Something went wrong. Please try again later.",
         variant: "destructive",
       });
     }
@@ -314,6 +313,7 @@ export default function LoanForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-12 px-4">
       <div className="container max-w-2xl mx-auto">
+        
         <div className="flex justify-between items-center mb-6">
           <Button variant="outline" onClick={() => navigate("/")}>
             Back to Home
@@ -335,7 +335,7 @@ export default function LoanForm() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                {/* Full Name */}
+                {/* Name */}
                 <FormField
                   control={form.control}
                   name="name"
@@ -350,7 +350,7 @@ export default function LoanForm() {
                   )}
                 />
 
-                {/* Phone Number */}
+                {/* Phone */}
                 <FormField
                   control={form.control}
                   name="phoneNumber"
@@ -358,7 +358,7 @@ export default function LoanForm() {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="User Phone Number" {...field} />
+                        <Input placeholder="+1234567890" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -368,12 +368,12 @@ export default function LoanForm() {
                 {/* Primary Contact */}
                 <FormField
                   control={form.control}
-                  name="primaryContact"
+                  name="primaryContactNumber"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Primary Contact Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="Primary Contact" {...field} />
+                        <Input placeholder="+1234567890" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -388,14 +388,14 @@ export default function LoanForm() {
                     <FormItem>
                       <FormLabel>Address</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Enter your full address" {...field} />
+                        <Textarea placeholder="Enter your complete address" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* Date of Birth */}
+                {/* DOB */}
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
@@ -417,7 +417,10 @@ export default function LoanForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Gender</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select gender" />
@@ -453,13 +456,12 @@ export default function LoanForm() {
                             <SelectValue placeholder="Select loan category" />
                           </SelectTrigger>
                         </FormControl>
-
                         <SelectContent>
                           <SelectItem value="personal">Personal Loan</SelectItem>
                           <SelectItem value="housing">Housing Loan</SelectItem>
                           <SelectItem value="business">Business Loan</SelectItem>
-                          <SelectItem value="vehicle">Vehicle Loan Old</SelectItem>
-                          <SelectItem value="vehicle-new">Vehicle Loan New</SelectItem>
+                          <SelectItem value="vehicle-old">Vehicle Loan (Old)</SelectItem>
+                          <SelectItem value="vehicle-new">Vehicle Loan (New)</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -468,16 +470,16 @@ export default function LoanForm() {
                   )}
                 />
 
-                {/* Other loan category input */}
+                {/* Other Loan Category Input */}
                 {showOtherField && (
                   <FormField
                     control={form.control}
-                    name="otherLoanCategory"
+                    name="loanCategoryOther"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Specify Loan Category</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter custom loan category" {...field} />
+                          <Input placeholder="Enter loan type" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -491,9 +493,9 @@ export default function LoanForm() {
                   name="referralName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Referral Name</FormLabel>
+                      <FormLabel>Referral Name (optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Referral Name" {...field} />
+                        <Input placeholder="Enter referral name" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -505,7 +507,7 @@ export default function LoanForm() {
                   name="referralPhone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Referral Phone Number</FormLabel>
+                      <FormLabel>Referral Phone (optional)</FormLabel>
                       <FormControl>
                         <Input placeholder="+1234567890" {...field} />
                       </FormControl>
@@ -516,12 +518,13 @@ export default function LoanForm() {
                 <Button type="submit" className="w-full" size="lg">
                   Submit Application
                 </Button>
+
               </form>
             </Form>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
 }
-

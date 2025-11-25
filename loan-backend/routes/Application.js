@@ -20,24 +20,35 @@ router.post("/", async (req, res) => {
       referralPhone
     } = req.body;
 
-    // Basic validation
-    if (
-      !name || 
-      !phoneNumber || 
-      !primaryContactNumber ||
-      !address || 
-      !dateOfBirth || 
-      !gender || 
-      !loanCategory
-    ) {
-      return res.status(400).json({ message: "Missing required fields" });
+    // REQUIRED FIELDS CHECK
+    const requiredFields = {
+      name: "Name",
+      phoneNumber: "Phone Number",
+      primaryContactNumber: "Primary Contact Number",
+      address: "Address",
+      dateOfBirth: "Date of Birth",
+      gender: "Gender",
+      loanCategory: "Loan Category",
+    };
+
+    for (const key in requiredFields) {
+      if (!req.body[key] || req.body[key].toString().trim() === "") {
+        return res.status(400).json({
+          message: `${requiredFields[key]} is required`,
+          field: key
+        });
+      }
     }
 
-    // If "others" is selected but user didn't type category
+    // If loanCategory = "others" and user didn’t provide text
     if (loanCategory === "others" && !loanCategoryOther) {
-      return res.status(400).json({ message: "Please specify your loan category" });
+      return res.status(400).json({
+        message: "Please specify your loan category",
+        field: "loanCategoryOther"
+      });
     }
 
+    // Create new record
     const application = new Application({
       name,
       phoneNumber,
@@ -56,7 +67,7 @@ router.post("/", async (req, res) => {
 
     res.status(201).json({
       message: "Application submitted",
-      applicationId: application.id
+      applicationId: application.id,
     });
 
   } catch (err) {
