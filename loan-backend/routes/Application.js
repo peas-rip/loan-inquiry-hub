@@ -40,8 +40,8 @@ router.post("/", async (req, res) => {
       }
     }
 
-    // If loanCategory = "others" and user didn’t provide text
-    if (loanCategory === "others" && !loanCategoryOther) {
+    // If loanCategory = "other" and user didn’t provide text
+    if (loanCategory === "other" && !loanCategoryOther) {
       return res.status(400).json({
         message: "Please specify your loan category",
         field: "loanCategoryOther"
@@ -57,7 +57,7 @@ router.post("/", async (req, res) => {
       dateOfBirth: new Date(dateOfBirth),
       gender,
       loanCategory,
-      loanCategoryOther: loanCategory === "others" ? loanCategoryOther : null,
+      loanCategoryOther: loanCategory === "other" ? loanCategoryOther : null,
       referralName: referralName || null,
       referralPhone: referralPhone || null,
       submittedAt: new Date()
