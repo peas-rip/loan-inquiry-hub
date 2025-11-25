@@ -19,17 +19,11 @@ app.use(
 );
 
 // CORS
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://srisaifinance.netlify.app",
-      "https://saifinancefrontend.onrender.com"
-    ],
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    credentials: true,
-  })
-);
+app.use(cors({
+    origin: "https://saifinancefrontend.onrender.com",
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+    credentials: true
+}));
 
 app.use(express.json({ limit: "10kb" }));
 
