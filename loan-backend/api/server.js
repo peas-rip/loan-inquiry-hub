@@ -24,6 +24,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://srisaifinance.netlify.app",
+      "https://saifinancefrontend.onrender.com"
     ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
