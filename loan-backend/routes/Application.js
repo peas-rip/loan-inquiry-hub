@@ -7,29 +7,64 @@ const { streamApplicationPDF } = require("../utils/pdf");
 // Create application (public)
 router.post("/", async (req, res) => {
   try {
-    const { name, phoneNumber, address, dateOfBirth, gender, loanCategory } = req.body;
+    const { 
+      name, 
+      phoneNumber, 
+      primaryContactNumber,
+      address, 
+      dateOfBirth, 
+      gender, 
+      loanCategory,
+      loanCategoryOther,
+      referralName,
+      referralPhone
+    } = req.body;
 
-    // Basic server-side validation (you can use Joi/Zod if you want)
-    if (!name || !phoneNumber || !address || !dateOfBirth || !gender || !loanCategory) {
+    // Basic validation
+    if (
+      !name || 
+      !phoneNumber || 
+      !primaryContactNumber ||
+      !address || 
+      !dateOfBirth || 
+      !gender || 
+      !loanCategory
+    ) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // If "others" is selected but user didn't type category
+    if (loanCategory === "others" && !loanCategoryOther) {
+      return res.status(400).json({ message: "Please specify your loan category" });
     }
 
     const application = new Application({
       name,
       phoneNumber,
+      primaryContactNumber,
       address,
       dateOfBirth: new Date(dateOfBirth),
       gender,
       loanCategory,
+      loanCategoryOther: loanCategory === "others" ? loanCategoryOther : null,
+      referralName: referralName || null,
+      referralPhone: referralPhone || null,
       submittedAt: new Date()
     });
+
     await application.save();
-    res.status(201).json({ message: "Application submitted", applicationId: application.id });
+
+    res.status(201).json({
+      message: "Application submitted",
+      applicationId: application.id
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // Admin: get all applications (protected)
 router.get("/", auth, async (req, res) => {
