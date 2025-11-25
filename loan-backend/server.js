@@ -12,7 +12,7 @@ connectDB(process.env.MONGO_URI);
 // Basic security
 app.use(helmet());
 app.use(cors({
-  origin: ["http://localhost:5173","https://srisaifinance.netlify.app"],
+  origin: ["http://localhost:8080","https://srisaifinance.netlify.app"],
   methods: ["GET", "POST", "PATCH", "DELETE"],
   credentials: true
 }));
