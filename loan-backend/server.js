@@ -12,7 +12,7 @@ connectDB(process.env.MONGO_URI);
 // Basic security
 app.use(helmet());
 app.use(cors({
-  origin: ["http://localhost:8080","https://saifinancefrontend.onrender.com"],
+  origin: ["http://localhost:8080","https://saifinancefrontend.onrender.com","https://admin-rs1h.onrender.com"],
   methods: ["GET", "POST", "PATCH", "DELETE"],
   credentials: true
 }));
