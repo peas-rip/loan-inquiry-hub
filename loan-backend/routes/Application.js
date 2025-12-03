@@ -16,8 +16,11 @@ router.post("/", async (req, res) => {
       gender, 
       loanCategory,
       loanCategoryOther,
-      referralName,
-      referralPhone
+
+      referralName1,
+      referralPhone1,
+      referralName2,
+      referralPhone2
     } = req.body;
 
     // REQUIRED FIELDS CHECK
@@ -29,6 +32,10 @@ router.post("/", async (req, res) => {
       dateOfBirth: "Date of Birth",
       gender: "Gender",
       loanCategory: "Loan Category",
+      referralName1: "Referral Name 1",
+      referralPhone1: "Referral Phone 1",
+      referralName2: "Referral Name 2",
+      referralPhone2: "Referral Phone 2",
     };
 
     for (const key in requiredFields) {
@@ -58,8 +65,12 @@ router.post("/", async (req, res) => {
       gender,
       loanCategory,
       loanCategoryOther: loanCategory === "other" ? loanCategoryOther : null,
-      referralName: referralName || null,
-      referralPhone: referralPhone || null,
+
+      referralName1,
+      referralPhone1,
+      referralName2,
+      referralPhone2,
+
       submittedAt: new Date()
     });
 
@@ -116,7 +127,6 @@ router.delete("/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Optionally, you can use req.admin to log who deleted
     const application = await Application.findById(id);
     if (!application) return res.status(404).json({ message: "Application not found" });
 
@@ -130,4 +140,5 @@ router.delete("/:id", auth, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 module.exports = router;
