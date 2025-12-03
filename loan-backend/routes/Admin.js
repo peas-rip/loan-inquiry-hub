@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Admin = require("../models/Admin");
+const Application = require("../models/Application");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -27,8 +28,7 @@ router.post("/login", async (req, res) => {
 });
 
 // PATCH /api/admin/update
-// Requires Authorization: Bearer <token>
-router.patch("/update",async (req, res) => {
+router.patch("/update", async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -39,11 +39,9 @@ router.patch("/update",async (req, res) => {
     const admin = await Admin.findOne({ username: req.body.username });
     if (!admin) return res.status(404).json({ message: "Admin not found" });
 
-    // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, admin.passwordHash);
     if (!isMatch) return res.status(400).json({ message: "Current password is incorrect" });
 
-    // Hash and save new password
     const salt = await bcrypt.genSalt(10);
     admin.passwordHash = await bcrypt.hash(newPassword, salt);
     await admin.save();
@@ -56,20 +54,24 @@ router.patch("/update",async (req, res) => {
   }
 });
 
+// GET /api/admin/applications (with filters)
 router.get("/", async (req, res) => {
   try {
     const { search, gender, loanCategory, fromDate, toDate } = req.query;
 
     let query = {};
 
-    // 🔍 Global Search (name, phone, address, referral)
+    // 🔍 Global Search (updated to include new referral fields)
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { phoneNumber: { $regex: search, $options: "i" } },
         { primaryContactNumber: { $regex: search, $options: "i" } },
         { address: { $regex: search, $options: "i" } },
-        { referralName: { $regex: search, $options: "i" } }
+        { referralName1: { $regex: search, $options: "i" } },
+        { referralName2: { $regex: search, $options: "i" } },
+        { referralPhone1: { $regex: search, $options: "i" } },
+        { referralPhone2: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -95,7 +97,8 @@ router.get("/", async (req, res) => {
       }
     }
 
-    const applications = await Application.find(query).sort({ submittedAt: -1 });
+    // 🔥 Fetch applications with ALL fields, including referrals
+    const applications = await Application.find(query).sort({ submittedAt: -1 }).lean();
 
     res.json({
       count: applications.length,
