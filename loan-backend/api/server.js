@@ -39,8 +39,9 @@ app.use(
 );
 
 // Routes
-app.use("/api/admin", require("../routes/Admin"));
-app.use("/api/applications", require("../routes/Application"));
+app.use("/admin", require("../routes/Admin"));
+app.use("/applications", require("../routes/Application"));
+
 
 app.get("/", (req, res) => res.send("Loan backend running"));
 
