@@ -11,6 +11,9 @@ const app = express();
 connectDB();
 
 // Security
+
+app.set("trust proxy", 1);
+
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
