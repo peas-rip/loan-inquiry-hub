@@ -1,0 +1,43 @@
+service: loan-backend
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  stage: dev
+
+  httpApi:
+    cors:
+      allowedOrigins:
+        - http://localhost:8080
+        - https://admin-rs1h.onrender.com
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowCredentials: true
+
+  environment:
+    PORT: 4000
+    MONGO_URI: "mongodb+srv://user1:peasrip12345@cluster0.p7baflk.mongodb.net/?appName=Cluster0"
+    JWT_SECRET: "123456"
+    JWT_EXPIRES_IN: "7d"
+    ADMIN_USERNAME: "admin"
+    ADMIN_PASSWORD: "admin123"
+
+functions:
+  api:
+    handler: api/index.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+
+package:
+  patterns:
+    - '!node_modules/aws-sdk/**'

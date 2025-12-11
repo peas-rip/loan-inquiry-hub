@@ -3,7 +3,7 @@ const router = express.Router();
 const Application = require("../models/Application");
 const auth = require("../middleware/auth");
 const { streamApplicationPDF } = require("../utils/pdf");
-
+const { generatePDFBuffer } = require("../utils/pdf");
 // Create application (public)
 router.post("/", async (req, res) => {
   try {
@@ -116,7 +116,16 @@ router.get("/:id/pdf", auth, async (req, res) => {
   try {
     const app = await Application.findById(req.params.id).lean();
     if (!app) return res.status(404).json({ message: "Not found" });
-    streamApplicationPDF(app, res);
+
+    const buffer = await generatePDFBuffer(app); // 🆕 MUST RETURN BUFFER
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${app.name}.pdf"`,
+    });
+
+    // 🆕🔥 Critical fix for API Gateway binary data
+    res.send(Buffer.from(buffer).toString("base64"));
   } catch (err) {
     console.error(err);
     if (!res.headersSent) res.status(500).json({ message: "Server error" });

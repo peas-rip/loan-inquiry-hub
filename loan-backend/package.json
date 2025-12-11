@@ -18,9 +18,11 @@
     "mongodb": "4.1",
     "mongoose": "^7.0.0",
     "pdfkit": "^0.13.0",
+    "serverless-http": "^4.0.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "serverless": "^4.27.1"
   }
 }
