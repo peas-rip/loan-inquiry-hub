@@ -8,7 +8,8 @@ app.use(express.json());
 app.use(cors({
   origin: [
     "http://localhost:8080",
-    "https://admin-rs1h.onrender.com"
+    "https://admin-rs1h.onrender.com",
+    "https://saifinancefrontend.onrender.com"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
